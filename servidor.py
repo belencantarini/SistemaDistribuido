@@ -111,21 +111,30 @@ def iniciar_comunicacion() -> None:
 
     try:
         servidor_socket = inicializar_socket()
+        servidor_socket.settimeout(1.0)
     except RuntimeError as e:
         print(e)
         return
 
     print("[SERVIDOR] Esperando conexiones...")
 
-    while True:
-        try:
-            cliente_socket, direccion = servidor_socket.accept()
-            hilo_cliente = threading.Thread(target=manejar_cliente, args=(cliente_socket, direccion))
-            hilo_cliente.daemon = True
-            hilo_cliente.start()
-        except socket.error as e:
-            print(f"[SERVIDOR] Error al aceptar una conexión: {e}")
-
+    try:
+        while True:
+            try:
+                cliente_socket, direccion = servidor_socket.accept()
+                hilo_cliente = threading.Thread(target=manejar_cliente, args=(cliente_socket, direccion))
+                hilo_cliente.daemon = True
+                hilo_cliente.start()
+            except socket.timeout:
+                    continue
+    except KeyboardInterrupt:
+        print("\n[SERVIDOR] Apagando...")
+    finally:        
+        for _ in range(CANTIDAD_WORKERS):
+            cola_de_tareas.put(None)
+        servidor_socket.close()
+        print("[SERVIDOR] Servidor cerrado")
+            
 
 # ─────────────────────────────────────────────
 # EJECUTAR EL SERVIDOR

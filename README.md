@@ -17,3 +17,7 @@ indicando que worker la proceso.
 1. Abrir una o mas terminales adicionales con: python cliente.py
 2. Observar en la consola del servidor como las tareas de los distintos
    clientes se reparten entre los mismos workers de forma concurrente.
+
+## Diagrama del Sistema
+
+![Diagrama del Sistema](images/diagrama.png)
